@@ -64,10 +64,10 @@ $$J = \mathbb{E}_{r_i, s_i \sim E, a_i \sim \pi}[R_1]$$
 $$Q^\pi(s_t, a_t) = \mathbb{E}_{r_{\geq t}, s_{i>t} \sim E, a_{i>t} \sim \pi}[R_t | s_t, a_t]$$
 
 **벨만 방정식 (Bellman Equation):**
-$$Q^\pi(s_t, a_t) = \mathbb{E}_{r_t, s_{t+1} \sim E}[r(s_t, a_t) + \gamma \mathbb{E}_{a_{t+1} \sim \pi}[Q^\pi(s_{t+1}, a_{t+1})]]$$
+$$Q^\pi(s_t, a_t) = \mathbb{E}_{r_t, s_{t+1} \sim E} \left[ r(s_t, a_t) + \gamma \mathbb{E}_{a_{t+1} \sim \pi} [Q^\pi(s_{t+1}, a_{t+1})] \right]$$
 
 결정론적 정책 $\mu: S \rightarrow A$의 경우:
-$$Q^\mu(s_t, a_t) = \mathbb{E}_{r_t, s_{t+1} \sim E}[r(s_t, a_t) + \gamma Q^\mu(s_{t+1}, \mu(s_{t+1}))]$$
+$$Q^\mu(s_t, a_t) = \mathbb{E}_{r_t, s_{t+1} \sim E} \left[ r(s_t, a_t) + \gamma Q^\mu(s_{t+1}, \mu(s_{t+1})) \right]$$
 
 ---
 
@@ -123,11 +123,11 @@ $$a = \mu(s|\theta^\mu)$$
 $$Q = Q(s, a|\theta^Q)$$
 
 **Actor 업데이트 (정책 경사):**
-$$\nabla_{\theta^\mu} J \approx \mathbb{E}_{s_t \sim \rho^\beta}\left[\nabla_a Q(s,a|\theta^Q)\big|_{s=s_t, a=\mu(s_t)} \nabla_{\theta^\mu} \mu(s|\theta^\mu)\big|_{s=s_t}\right]$$
+$$\nabla_{\theta^\mu} J \approx \mathbb{E}_{s_t \sim \rho^\beta} \left[ \nabla_a Q(s, a | \theta^Q) |_{s=s_t, a=\mu(s_t)} \nabla_{\theta^\mu} \mu(s | \theta^\mu) |_{s=s_t} \right]$$
 
 **Critic 업데이트 (TD 오차 최소화):**
-$$L(\theta^Q) = \mathbb{E}\left[(y_i - Q(s_i, a_i|\theta^Q))^2\right]$$
-$$y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1}|\theta^{\mu'})|\theta^{Q'})$$
+$$L(\theta^Q) = \mathbb{E} \left[ (y_i - Q(s_i, a_i | \theta^Q))^2 \right]$$
+$$y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1} | \theta^{\mu'}) | \theta^{Q'})$$
 
 ---
 
@@ -254,7 +254,7 @@ $$G_P = \frac{0.5s - 1}{s^2 + 3s + 2}$$
 - 달성 가능한 제어 성능에 근본적 한계 존재
 
 **상태공간 표현 (제어가능 표준형):**
-$$A_p = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}, \quad B_p = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad C_p = \begin{bmatrix} -1 & 0.5 \end{bmatrix}$$
+$$A_p = \begin{bmatrix} 0 & 1 \\\\ -2 & -3 \end{bmatrix}, \quad B_p = \begin{bmatrix} 0 \\\\ 1 \end{bmatrix}, \quad C_p = \begin{bmatrix} -1 & 0.5 \end{bmatrix}$$
 
 ### 5.2 LQI (Linear Quadratic Integral) 제어기
 
@@ -263,7 +263,7 @@ $$A_p = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}, \quad B_p = \begin{bmatr
 2. 추적 오차와 제어 신호를 포함하는 비용 함수 → DDPG의 보상 함수와 직접 비교 가능
 
 **적분 오차 상태 도입:**
-$$\begin{bmatrix} \dot{x}_p \\ \dot{e}_I \end{bmatrix} = \underbrace{\begin{bmatrix} A_p & 0 \\ -C_p & 0 \end{bmatrix}}_{A} \begin{bmatrix} x_p \\ e_I \end{bmatrix} + \underbrace{\begin{bmatrix} B_p \\ 0 \end{bmatrix}}_{B} u + \begin{bmatrix} 0 \\ 1 \end{bmatrix} r$$
+$$\begin{bmatrix} \dot{x}_p \\\\ \dot{e}_I \end{bmatrix} = \underbrace{\begin{bmatrix} A_p & 0 \\\\ -C_p & 0 \end{bmatrix}}_{A} \begin{bmatrix} x_p \\\\ e_I \end{bmatrix} + \underbrace{\begin{bmatrix} B_p \\\\ 0 \end{bmatrix}}_{B} u + \begin{bmatrix} 0 \\\\ 1 \end{bmatrix} r$$
 
 **이차 비용 함수:**
 $$J = \frac{1}{2}\int_0^\infty (x^T Q_{LQR} x + u_c^T R_{LQR} u_c) dt$$
