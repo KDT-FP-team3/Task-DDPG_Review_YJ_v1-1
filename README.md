@@ -107,13 +107,13 @@ $$Q^\mu(s_t, a_t) = \mathbb{E}_{r_t, s_{t+1} \sim E}[r(s_t, a_t) + \gamma Q^\mu(
            ▼                               ▼
     ┌─────────────┐                ┌─────────────┐
     │   Actor     │                │   Critic    │
-    │  μ(s|θ^μ)  │                │  Q(s,a|θ^Q) │
+    │  $\mu(s|\theta^\mu)$  │                │  $Q(s,a|\theta^Q)$ │
     │  (정책망)   │                │  (가치망)   │
     └─────────────┘                └─────────────┘
            │                               ▲
-           │ 행동 a = μ(s)                  │
+           │ 행동 $a = \mu(s)$                  │
            └───────────────────────────────┘
-                      Q(s, μ(s)) 계산
+                      $Q(s, \mu(s))$ 계산
 ```
 
 **Actor (정책망):** 상태를 입력받아 최적 행동을 결정론적으로 출력
@@ -143,7 +143,7 @@ $$y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1}|\theta^{\mu'})|\theta^{Q'})$$
 **동작 방식:**
 ```python
 # 전이(transition) 저장
-replay_buffer.store((s_t, a_t, r_t, s_{t+1}))
+replay_buffer.store(($s_t, a_t, r_t, s_{t+1}$))
 
 # 무작위 미니배치 샘플링
 batch = replay_buffer.sample(batch_size=64)
@@ -164,7 +164,7 @@ batch = replay_buffer.sample(batch_size=64)
 
 ```python
 # 소프트 업데이트 (Soft Update)
-θ'  ←  τ·θ + (1-τ)·θ'    # τ << 1 (예: 0.001)
+$\theta'  \leftarrow  \tau \cdot \theta + (1-\tau) \cdot \theta'$    # $\tau \ll 1$ (예: 0.001)
 ```
 
 - **하드 업데이트(DQN):** 주기적으로 가중치를 직접 복사
@@ -182,8 +182,8 @@ batch = replay_buffer.sample(batch_size=64)
 ```python
 # 배치 정규화 적용 위치
 # - 상태 입력
-# - μ 네트워크의 모든 레이어
-# - 행동 입력 이전의 Q 네트워크 레이어들
+# - $\mu$ 네트워크의 모든 레이어
+# - 행동 입력 이전의 $Q$ 네트워크 레이어들
 ```
 
 ### 3.4 탐험 정책 (Exploration Policy)
@@ -197,7 +197,7 @@ $$\mu'(s_t) = \mu(s_t|\theta^\mu_t) + \mathcal{N}$$
 $$d\mathbf{x}_t = \theta(\mu - \mathbf{x}_t)dt + \sigma d\mathbf{W}_t$$
 
 - 물리적 제어 환경에서 **관성(inertia)** 을 고려한 시간적 상관 탐험 노이즈
-- 파라미터: $\theta = 0.15$, $\sigma = 0.2$
+- 파라미터: $\theta = 0.15, \sigma = 0.2$
 
 ---
 
@@ -207,36 +207,36 @@ $$d\mathbf{x}_t = \theta(\mu - \mathbf{x}_t)dt + \sigma d\mathbf{W}_t$$
 알고리즘: DDPG
 
 [초기화]
-1. Critic 네트워크 Q(s,a|θ^Q)와 Actor μ(s|θ^μ)를 무작위 초기화
-2. 타겟 네트워크 Q', μ' 초기화: θ^Q' ← θ^Q, θ^μ' ← θ^μ
-3. 경험 재생 버퍼 R 초기화
+1. Critic 네트워크 $Q(s,a|\theta^Q)$와 Actor $\mu(s|\theta^μ)$를 무작위 초기화
+2. 타겟 네트워크 $Q'$, $\mu'$ 초기화: $\theta^{Q'} \leftarrow \theta^Q, \theta^{\mu'} \leftarrow \theta^\mu$
+3. 경험 재생 버퍼 $R$ 초기화
 
-[에피소드 루프] for episode = 1 to M:
-  4. 탐험 노이즈 프로세스 N 초기화
-  5. 초기 관측 상태 s_1 수신
+[에피소드 루프] for episode = 1 to $M$:
+  4. 탐험 노이즈 프로세스 $\mathcal{N}$ 초기화
+  5. 초기 관측 상태 $s_1$ 수신
 
-  [시간 스텝 루프] for t = 1 to T:
+  [시간 스텝 루프] for $t = 1$ to $T$:
     6. 현재 정책과 탐험 노이즈로 행동 선택:
-       a_t = μ(s_t|θ^μ) + N_t
+       $a_t = \mu(s_t|\theta^\mu) + \mathcal{N}_t$
 
-    7. 행동 a_t 실행 → 보상 r_t 획득, 새 상태 s_{t+1} 관측
+    7. 행동 $a_t$ 실행 → 보상 $r_t$ 획득, 새 상태 $s_{t+1}$ 관측
 
-    8. 전이 (s_t, a_t, r_t, s_{t+1})를 R에 저장
+    8. 전이 $(s_t, a_t, r_t, s_{t+1})$를 $R$에 저장
 
-    9. R에서 무작위 미니배치 N개 샘플링: (s_i, a_i, r_i, s_{i+1})
+    9. $R$에서 무작위 미니배치 $N$개 샘플링: $(s_i, a_i, r_i, s_{i+1})$
 
    10. TD 타겟 계산:
-       y_i = r_i + γ·Q'(s_{i+1}, μ'(s_{i+1}|θ^μ')|θ^Q')
+       $y_i = r_i + \gamma \cdot Q'(s_{i+1}, \mu'(s_{i+1}|\theta^{\mu'})|\theta^{Q'})$
 
    11. Critic 업데이트 (손실 최소화):
-       L = (1/N) Σ_i (y_i - Q(s_i, a_i|θ^Q))²
+       $L = \frac{1}{N} \sum_i (y_i - Q(s_i, a_i|\theta^Q))^2$
 
    12. Actor 업데이트 (샘플 정책 경사):
-       ∇_{θ^μ} J ≈ (1/N) Σ_i ∇_a Q(s,a|θ^Q)|_{s=s_i, a=μ(s_i)} · ∇_{θ^μ} μ(s|θ^μ)|_{s_i}
+       $\nabla_{\theta^\mu} J \approx \frac{1}{N} \sum_i \nabla_a Q(s,a|\theta^Q)|_{s=s_i, a=\mu(s_i)} \cdot \nabla_{\theta^\mu} \mu(s|\theta^\mu)|_{s_i}$
 
    13. 타겟 네트워크 소프트 업데이트:
-       θ^Q' ← τ·θ^Q + (1-τ)·θ^Q'
-       θ^μ' ← τ·θ^μ + (1-τ)·θ^μ'
+       $\theta^{Q'} \leftarrow \tau \cdot \theta^Q + (1-\tau) \cdot \theta^{Q'}$
+       $\theta^{\mu'} \leftarrow \tau \cdot \theta^\mu + (1-\tau) \cdot \theta^{\mu'}$
 ```
 
 ---
@@ -254,7 +254,7 @@ $$G_P = \frac{0.5s - 1}{s^2 + 3s + 2}$$
 - 달성 가능한 제어 성능에 근본적 한계 존재
 
 **상태공간 표현 (제어가능 표준형):**
-$$A_p = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}, \quad B_p = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad C_p = [-1 \quad 0.5]$$
+$$A_p = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}, \quad B_p = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad C_p = \begin{bmatrix} -1 & 0.5 \end{bmatrix}$$
 
 ### 5.2 LQI (Linear Quadratic Integral) 제어기
 
@@ -269,12 +269,12 @@ $$\begin{bmatrix} \dot{x}_p \\ \dot{e}_I \end{bmatrix} = \underbrace{\begin{bmat
 $$J = \frac{1}{2}\int_0^\infty (x^T Q_{LQR} x + u_c^T R_{LQR} u_c) dt$$
 
 **최적 제어 신호:**
-$$u_c(t) = -K_{LQR} x_p(t) + k_I e_I(t)$$
+$$u_c(t) = -K_{LQR} x_p(t) + K_I e_I(t)$$
 
 ### 5.3 DDPG 제어기 변형
 
 **DDPG₁:** Critic 네트워크가 상태 피드백 이득 $K_{DDPG}$ 추정
-$$a = u_c = K_1 x_1 + K_2 x_2 + K_3 x_3 = K_{DDPG} x$$
+$$a = u_c = K_1 x_1 + K_2 x_2 + K_3 x_3 = K_{DDPG} \mathbf{x}$$
 
 **DDPG₂:** 완전한 블랙박스 데이터 기반 제어기 (End-to-End)
 - 어떤 모델 구조도 가정하지 않음
@@ -282,10 +282,10 @@ $$a = u_c = K_1 x_1 + K_2 x_2 + K_3 x_3 = K_{DDPG} x$$
 - Actor: 4개의 완전연결층 + tanh + 스케일링 레이어
 
 **공통 관측값:**
-$$s = x = [x_1, x_2, x_3]^T = [x_p, e_I]^T$$
+$$\mathbf{s} = \mathbf{x} = [x_1, x_2, x_3]^T = [x_p, e_I]^T$$
 
 **보상 함수 (LQR 비용 함수의 음수):**
-$$r(t) = -(x(t)^T Q_{LQR} x(t) + u_c R_{LQR} u_c)$$
+$$r(t) = -(\mathbf{x}(t)^T Q_{LQR} \mathbf{x}(t) + u_c^T R_{LQR} u_c)$$
 
 ---
 
@@ -406,7 +406,7 @@ $$DM = \frac{PM}{|G(j\omega_{gc})|}$$
 
 ### 8.3 실습 코드 파일
 
-→ **[`DDPG_Colab_Practice.ipynb`](./DDPG_Colab_Practice.ipynb)** 참조
+→ **[`DDPG.ipynb`](./DDPG.ipynb)** 참조
 
 ---
 
@@ -451,4 +451,4 @@ $$DM = \frac{PM}{|G(j\omega_{gc})|}$$
 
 ---
 
-*최종 수정: 2026년 3월*
+
